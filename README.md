@@ -1,73 +1,54 @@
 # A3-chatbot
 GenAI
-
-To create a chatbot that can answer questions about Ollama, you can follow these steps:
-
-Set Up the Environment:
-
-Ensure you have Node.js and npm installed on your machine.
-Create a new directory for your project and initialize it with npm init.
-Install Dependencies:
-
-You will need a chatbot framework like botpress, botbuilder, or discord.js if you are building a Discord bot.
-You may also need a library for handling HTTP requests like axios.
-Create the Bot:
-
-Create a file (e.g., index.js) and set up your bot.
-Implement Ollama Knowledge Base:
-
-You can either manually input the knowledge base about Ollama or use a data source (API, database, etc.).
-Handle User Queries:
-
-Implement logic to parse user queries and respond with relevant information about Ollama.
-Here is an example using discord.js to create a Discord bot:
+To create a chatbot in Python that can answer questions about Ollama, you can use the discord.py library for creating a Discord bot. Here are the steps to set it up:
 
 Step 1: Set Up the Environment
+Make sure you have Python installed. Then, create a virtual environment and install discord.py.
+
 sh
-mkdir ollama-bot
-cd ollama-bot
-npm init -y
-Step 2: Install Dependencies
-sh
-npm install discord.js axios
-Step 3: Create the Bot
-Create a file named index.js and add the following code:
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+pip install discord.py
+Step 2: Create the Bot
+Create a file named bot.py and add the following code:
 
-JavaScript
-const { Client, GatewayIntentBits } = require('discord.js');
-const axios = require('axios');
+Python
+import discord
+from discord.ext import commands
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+# Create a bot instance with a command prefix
+bot = commands.Bot(command_prefix='!')
 
-const TOKEN = 'YOUR_DISCORD_BOT_TOKEN';
-
-const ollamaKnowledgeBase = {
+# Knowledge base for Ollama
+ollama_knowledge_base = {
     "what is ollama": "Ollama is a platform for ...",
     "how to use ollama": "To use Ollama, you need to ...",
     "features of ollama": "Ollama offers features such as ...",
-    // Add more Q&A pairs here
-};
+    # Add more Q&A pairs here
+}
 
-client.once('ready', () => {
-    console.log('Ollama Bot is online!');
-});
+# Event listener for when the bot is ready
+@bot.event
+async def on_ready():
+    print(f'Bot {bot.user} is online!')
 
-client.on('messageCreate', async message => {
-    if (message.author.bot) return;
+# Command to handle user queries
+@bot.command(name='ask')
+async def ask(ctx, *, query: str):
+    query = query.lower()
+    if query in ollama_knowledge_base:
+        await ctx.send(ollama_knowledge_base[query])
+    else:
+        await ctx.send("I'm sorry, I don't have an answer for that question about Ollama.")
 
-    const query = message.content.toLowerCase();
+# Run the bot using your token
+bot.run('YOUR_DISCORD_BOT_TOKEN')
+Step 3: Run the Bot
+Replace 'YOUR_DISCORD_BOT_TOKEN' with your actual Discord bot token. Then, run the bot:
 
-    if (ollamaKnowledgeBase[query]) {
-        message.channel.send(ollamaKnowledgeBase[query]);
-    } else {
-        message.channel.send("I'm sorry, I don't have an answer for that question about Ollama.");
-    }
-});
-
-client.login(TOKEN);
-Step 4: Run the Bot
 sh
-node index.js
-Make sure to replace YOUR_DISCORD_BOT_TOKEN with your actual Discord bot token.
+python bot.py
+Adding More Q&A Pairs
+You can extend the ollama_knowledge_base dictionary with more questions and answers about Ollama.
 
-You can extend this bot by adding more questions and answers to the ollamaKnowledgeBase object or by integrating it with a more sophisticated natural language processing service.
+This bot listens for the !ask command followed by a question. For example, a user can type !ask what is ollama and the bot will respond with the corresponding answer from the knowledge base.
